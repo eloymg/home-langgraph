@@ -7,7 +7,7 @@ from homeassistant.helpers import config_validation as cv, intent, template, ent
 
 from homeassistant.const import ATTR_ENTITY_ID, CONF_HOST, CONF_PORT, CONF_SSL, MATCH_ALL, CONF_LLM_HASS_API
 
-class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
+class LanggraphAgent(ConversationEntity, AbstractConversationAgent):
     """Base Local LLM conversation agent."""
 
     hass: HomeAssistant
