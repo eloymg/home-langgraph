@@ -1,0 +1,16 @@
+{
+  "domain": "home_langgraph",
+  "name": "Home langgraph conversation",
+  "version": "0.3.10",
+  "codeowners": ["@eloymg"],
+  "config_flow": true,
+  "dependencies": ["conversation"],
+  "after_dependencies": ["assist_pipeline"],
+  "documentation": "https://github.com/eloymg/home-langgraph",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "requirements": [
+      "huggingface-hub>=0.23.0",
+      "webcolors>=24.8.0"
+  ]
+}
