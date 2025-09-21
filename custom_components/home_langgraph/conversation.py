@@ -1,4 +1,5 @@
 from typing import Literal
+from nabu_agent import execute_main_workflow
 
 from homeassistant.components.conversation import (
     ConversationInput,
@@ -10,7 +11,7 @@ from homeassistant.components import conversation as conversation
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import MATCH_ALL, CONF_LLM_HASS_API
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import intent
+from homeassistant.helpers import intent, chat_session
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import (
@@ -86,8 +87,25 @@ class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
         return MATCH_ALL
 
     async def async_process(self, user_input: ConversationInput) -> ConversationResult:
+        """Process a sentence."""
+        with (
+            chat_session.async_get_chat_session(
+                self.hass, user_input.conversation_id
+            ) as session,
+            conversation.async_get_chat_log(self.hass, session, user_input) as chat_log,
+        ):
+            return await self._async_handle_message(user_input, chat_log)
+
+    async def _async_handle_message(
+        self,
+        user_input: conversation.ConversationInput,
+        chat_log: conversation.ChatLog,
+    ) -> conversation.ConversationResult:
+        result = await self.hass.async_add_executor_job(
+            execute_main_workflow, user_input.text
+        )
         i = intent.IntentResponse(language="ca")
-        i.async_set_speech("Constant response")
+        i.async_set_speech(result)
         return ConversationResult(
             response=i, conversation_id=user_input.conversation_id
         )

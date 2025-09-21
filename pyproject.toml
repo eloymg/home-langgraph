@@ -6,4 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "homeassistant>=2025.4.4",
+    "nabu-agent",
 ]
+
+[tool.uv.sources]
+nabu-agent = { git = "https://github.com/und1n3/nabu-agent" }

@@ -3,10 +3,17 @@
   "name": "Home langGraph conversation agent",
   "description": "A conversation agent that uses langGraph",
   "version": "1.0.0",
-  "dependencies": ["conversation"],
-  "codeowners": ["@eloymg"],
+  "dependencies": [
+    "conversation"
+  ],
+  "codeowners": [
+    "@eloymg"
+  ],
   "documentation": "https://github.com/eloymg/home-langgraph",
   "iot_class": "local_polling",
   "integration_type": "service",
-  "config_flow": true
+  "config_flow": true,
+  "requirements": [
+    "git+https://github.com/und1n3/nabu-agent"
+  ]
 }
