@@ -1,21 +1,54 @@
-from homeassistant.components.conversation import ConversationInput, ConversationResult, AbstractConversationAgent, ConversationEntity
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.components import assist_pipeline, conversation as conversation
-from homeassistant.helpers import config_validation as cv, intent, template, entity_registry as er, llm, \
-    area_registry as ar, device_registry as dr, chat_session
+from typing import Literal
 
-from homeassistant.const import ATTR_ENTITY_ID, CONF_HOST, CONF_PORT, CONF_SSL, MATCH_ALL, CONF_LLM_HASS_API
+from homeassistant.components.conversation import (
+    ConversationInput,
+    ConversationResult,
+    AbstractConversationAgent,
+    ConversationEntity,
+)
+from homeassistant.components import conversation as conversation
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import MATCH_ALL, CONF_LLM_HASS_API
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import intent
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+
+from .const import (
+    DOMAIN,
+)
+
+
+async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
+    """Handle options update."""
+    hass.data[DOMAIN][entry.entry_id] = entry
+
+    return True
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> bool:
+    """Set up Local LLM Conversation from a config entry."""
+
+    # handle updates to the options
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    # register the agent entity
+    async_add_entities([entry.runtime_data])
+
+    return True
+
 
 class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
     """Base Local LLM conversation agent."""
 
     hass: HomeAssistant
     entry_id: str
-    in_context_examples: list[dict]
 
     _attr_has_entity_name = True
-    _attr_supports_streaming = False # TODO: add support for backends that can stream
+    _attr_supports_streaming = False  # TODO: add support for backends that can stream
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         """Initialize the agent."""
@@ -25,7 +58,6 @@ class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
         self.hass = hass
         self.entry_id = entry.entry_id
 
-        self.backend_type = "asd"
         if self.entry.options.get(CONF_LLM_HASS_API):
             self._attr_supported_features = (
                 conversation.ConversationEntityFeature.CONTROL
@@ -44,28 +76,18 @@ class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
     @property
     def entry(self) -> ConfigEntry:
         try:
-            return self.hass.data["home_langgraph"][self.entry_id]
+            return self.hass.data[DOMAIN][self.entry_id]
         except KeyError as ex:
             raise Exception("Attempted to use self.entry during startup.") from ex
 
-    async def async_process(
-        self, user_input: ConversationInput
-    ) -> ConversationResult:
-        """Process a sentence."""
-        with (
-            chat_session.async_get_chat_session(
-                self.hass, user_input.conversation_id
-            ) as session,
-            conversation.async_get_chat_log(self.hass, session, user_input) as chat_log,
-        ):
-            return await self._async_handle_message(user_input, chat_log)
+    @property
+    def supported_languages(self) -> list[str] | Literal["*"]:
+        """Return a list of supported languages."""
+        return MATCH_ALL
 
-    async def _async_handle_message(
-            self,
-            user_input: conversation.ConversationInput,
-            chat_log: conversation.ChatLog,
-        ) -> conversation.ConversationResult:
-
-            return ConversationResult(
-                    response="asd", conversation_id=user_input.conversation_id
-                )
+    async def async_process(self, user_input: ConversationInput) -> ConversationResult:
+        i = intent.IntentResponse(language="ca")
+        i.async_set_speech("Constant response")
+        return await ConversationResult(
+            response=i, conversation_id=user_input.conversation_id
+        )

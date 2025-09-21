@@ -1,16 +1,12 @@
 {
   "domain": "home_langgraph",
-  "name": "Home langgraph conversation",
-  "version": "0.3.10",
-  "codeowners": ["@eloymg"],
-  "config_flow": true,
+  "name": "Home langGraph conversation agent",
+  "description": "A conversation agent that uses langGraph",
+  "version": "1.0.0",
   "dependencies": ["conversation"],
-  "after_dependencies": ["assist_pipeline"],
+  "codeowners": ["@eloymg"],
   "documentation": "https://github.com/eloymg/home-langgraph",
-  "integration_type": "service",
   "iot_class": "local_polling",
-  "requirements": [
-      "huggingface-hub>=0.23.0",
-      "webcolors>=24.8.0"
-  ]
+  "integration_type": "service",
+  "config_flow": true
 }
