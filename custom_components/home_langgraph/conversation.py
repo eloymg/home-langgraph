@@ -88,6 +88,6 @@ class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
     async def async_process(self, user_input: ConversationInput) -> ConversationResult:
         i = intent.IntentResponse(language="ca")
         i.async_set_speech("Constant response")
-        return await ConversationResult(
+        return ConversationResult(
             response=i, conversation_id=user_input.conversation_id
         )
