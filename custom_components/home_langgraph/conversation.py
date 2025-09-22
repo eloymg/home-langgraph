@@ -101,9 +101,7 @@ class LocalLLMAgent(ConversationEntity, AbstractConversationAgent):
         user_input: conversation.ConversationInput,
         chat_log: conversation.ChatLog,
     ) -> conversation.ConversationResult:
-        result = await self.hass.async_add_executor_job(
-            execute_main_workflow, user_input.text
-        )
+        result = await execute_main_workflow(user_input.text)
         i = intent.IntentResponse(language="ca")
         i.async_set_speech(result)
         return ConversationResult(
